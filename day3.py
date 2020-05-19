@@ -24,7 +24,6 @@ def move(instruction, currPos):
     currentY = int(currPos[1])
     # For part 2: keep track of steps taken
     currentSteps = int(currPos[2])
-    currentSteps += steps
 
     moves = []
     for i in range(0, steps):
@@ -36,6 +35,8 @@ def move(instruction, currPos):
             currentY += 1
         elif (dir == 'D'):
             currentY -= 1
+        # increment steps
+        currentSteps += 1
         # Backtick to concatenate string and int
         moves.append(`currentX` + "," + `currentY` + "," + `currentSteps`)
     return(moves)
@@ -50,56 +51,44 @@ for i, instruction in enumerate(path2):
 
 # To compare just x and y coordinates for the two wires to find intersections,
 # we need to make a copy of the two wires where we strip the number of steps
-# taken (the last two characters in the string)
+# taken (the last part of the string, after the second comma)
 trimmed1 = [','.join(coord.split(",")[0:2]) for coord in wire1]
 trimmed2 = [','.join(coord.split(",")[0:2]) for coord in wire2]
 
 # To keep the indice of where it intersects, convert to dictionnary
-dict1 = dict((k,i) for i,k in enumerate(trimmed1))
-dict2 = dict((k,i) for i,k in enumerate(trimmed2))
+dict1 = dict((k,val) for val,k in enumerate(trimmed1))
+dict2 = dict((k,val) for val,k in enumerate(trimmed2))
 
-# Find all values in the two lists that are identical
+# Find all values in the two dictionnaries that are identical
 intersects = set(dict1).intersection(dict2)
-
-# make copy of intersect to be used in part 2
-intersectsCopy = intersects.copy()
 
 # Don't count the starting point, where the two wires cross by default
 intersects.remove("0,0")
 
 distances = []
-indices = []
+sumSteps = []
 for val in intersects:
-    val = val.split(",")
+    valArr = val.split(",")
     # Add absolute value of x and y for each intersecting coordinate to
     # calculate manhattan distance
-    manhattanDist = abs(int(val[0])) + abs(int(val[1]))
+    manhattanDist = abs(int(valArr[0])) + abs(int(valArr[1]))
     distances.append(manhattanDist)
 
+    # Get indices for the positions matching the value of the intersect
+    ind1 = dict1[val]
+    ind2 = dict2[val]
+    # Get the full entry fir each wire, so that we can acces steps taken for each intersect
+    selected1 = wire1[ind1]
+    selected2 = wire2[ind2]
+    # split the coords so that we can sum up the steps
+    coords1 = selected1.split(",")
+    coords2 = selected2.split(",")
+    sumSteps.append(int(coords1[2]) + int(coords2[2]))
+
+# Find the smallest value for both puzzles
 distances.sort()
+sumSteps.sort()
 # Print smallest manhattan distance
-print(distances[0]) # <---- solution to first part
-
-#
-#   Part 2
-#
-print(intersectsCopy)
-# Get the indices for the two wires where they intersect
-indices1 = [dict1[x] for x in intersectsCopy]
-indices2 = [dict2[x] for x in intersectsCopy]
-print(indices1)
-sumSteps = []
-for i in range(0, len(intersectsCopy)):
-    coords1 = wire1[indices1[i]].split(",")
-    coords2 = wire2[indices2[i]].split(",")
-
-    print(coords1)
-    print(coords2)
-    #steps1 = wire1[indices1[i]].split(",")[2]
-    #steps2 = wire2[indices2[i]].split(",")[2]
-    #sumSteps.append(int(steps1) + int(steps2))
-
-#sumSteps.sort()
-# Print the lowest number of steps needed to be taken by the two wires together
-# to reach an intersection
-#print(sumSteps[0])
+print("Manhattan distance: ", distances[0]) # <---- solution to first part
+# Print smallest sum of steps
+print("Smallest sum of steps: ", sumSteps[0]) # <----- solution to second part
