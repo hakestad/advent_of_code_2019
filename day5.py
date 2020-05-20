@@ -2,93 +2,58 @@ program = [3,225,1,225,6,6,1100,1,238,225,104,0,1101,82,10,225,101,94,44,224,101
 
 opCode = 0
 pointer = 0
-instruction = 0
-#while opCode != 99:
-cntr = 0
-while cntr < 50:
-    instruction = program[pointer]
-    codes = [int(i) for i in str(instruction)]
+while opCode != 99:
+    codes = [int(i) for i in str(program[pointer])]
     numCodes = len(codes)
-    print("codes: ", codes)
-    print("numCodes: ",numCodes)
-    # The same as how it was before, normal opCode, with three parameters, not instruction
-    if numCodes == 1 or numCodes == 2:
-        opCode = int(`codes[0]` + `codes[1]`) if numCodes == 2 else codes[0]
 
-        #print("opCode normal mode: ", opCode)
-        # Break out if code 99, and do it before the rest so we don't
-        # try to access array indices that are out of bounds
-        if (opCode == 99):
-            # Halt program
-            break
+    # The opCode is the two rightmost digits of the instruction, or the last digit for instructions
+    # that are lacking modes and are only single digit - handle this with ternary construct
+    # Need to combine them to a string to put them together, then re-convert back to int
+    opCode = int(`codes[numCodes - 2]` + `codes[numCodes - 1]`) if numCodes >= 2 else codes[0]
 
-        index1 = program[pointer + 1]
+    if opCode == 99:
+        break
 
-        if opCode == 1:
-            # For code 1 you should add the values of indicies of the next to positions together
-            # and change the value of the third index
-            index2 = program[pointer + 2]
-            index3 = program[pointer + 3]
-            program[index3] = program[index1] + program[index2]
-            pointer += 4
-        elif opCode == 2:
-            # For code 1, you should multiply instead
-            index2 = program[pointer + 2]
-            index3 = program[pointer + 3]
-            program[index3] = program[index1] * program[index2]
-            pointer += 4
-        elif opCode == 3:
-            # Take single input value and store that value at the position which is also that value
-            program[index1] = index1
-            pointer += 2
-        elif opCode == 4:
-            # Output value at the position given by the first parameter
-            print(program[index1])
-            pointer += 2
-        #else:
-            #print("Else condition reached")
+    # Defaults are mode 0 - position mode, else read mode from
+    # third last, fourth last or fifth last code if they exist
+    mode1 = codes[numCodes - 3] if numCodes >= 3 else 0
+    mode2 = codes[numCodes - 4] if numCodes >= 4 else 0
+    mode3 = codes[numCodes - 5] if numCodes >= 5 else 0
 
-    else:
-        # The opCode is the two rightmost digits of the instruction
-        # Need to combine them to a string to put them together, then re-convert back to int
-        opCode = int(`codes[numCodes - 1]` + `codes[numCodes - 2]`)
+    index1 = program[pointer + 1]
+    # Only setup indices for these if there are appropriate number of params for this opCode
+    index2 = program[pointer + 2] if opCode == 1 or opCode == 2 else None
+    index3 = program[pointer + 3] if opCode == 1 or opCode == 2 else None
 
-        print("op code in special mode: ", opCode)
-        if opCode == 99:
-            break
+    if opCode == 1:
+        # Depending on the mode, you should either add the values at
+        # the indexed positions (mode == 0) together, or add the
+        # direct values (indices) together (mode == 1)
+        a1 = program[index1] if mode1 == 0 else index1
+        a2 = program[index2] if mode2 == 0 else index2
+        program[index3] = a1 + a2
+        # Increase pointer by 4, since this instruction uses three parameters
+        pointer += 4
+    elif opCode == 2:
+        # For code 2, you should multiply instead
+        m1 = program[index1] if mode1 == 0 else index1
+        m2 = program[index2] if mode2 == 0 else index2
+        program[index3] = m1 * m2
+        # Increase pointer by 4, since this instruction uses three parameters
+        pointer += 4
+    elif opCode == 3:
+        # Take single input value and store that value at the position given by parameter
+        try:
+            val = int(input("Input: "))
+        except ValueError:
+            print "Not a number."
 
-        # Defaults are mode 0 - position mode, else read mode from
-        # third last, fourth last or fifth last code if they exist
-        mode1 = codes[numCodes - 3] if numCodes >= 3 else 0
-        mode2 = codes[numCodes - 4] if numCodes >= 4 else 0
-        mode3 = codes[numCodes - 5] if numCodes >= 5 else 0
-
-        index1 = program[pointer + 1]
-        # Only access these if there are appropriate number of params for this opCode
-        index2 = program[pointer + 2] if opCode == 1 or opCode == 2 else 0
-        index3 = program[pointer + 3] if opCode == 1 or opCode == 2 else 0
-
-        if opCode == 1:
-            # Depending on the mode, you should either add the values at
-            # the indexed positions (mode == 0) together, or add the
-            # direct values (indices) together
-            a1 = program[index1] if mode1 == 0 else index1
-            a2 = program[index2] if mode2 == 0 else index2
-            program[index3] = a1 + a2
-
-        elif opCode == 2:
-            # For code 1, you should multiply instead
-            m1 = program[index1] if mode1 == 0 else index1
-            m2 = program[index2] if mode1 == 0 else index2
-            program[index3] = m1 * m2
-
-        elif opCode == 3:
-            # Take single input value and store that value at the position which is also that value
-            program[index1] = index1
-        elif opCode == 4:
-            # Output value at the position given by the first parameter
-            print(program[index1])
-        # Increase pointer by how many instructions was in the instruction code
-        pointer += numCodes
-        print("Pointer: ", pointer)
-    cntr += 1
+        program[index1] = val
+        # Increase pointer by 2, since this instruction has only one parameter
+        pointer += 2
+    elif opCode == 4:
+        # Output value at the position given by the first parameter, or the index value if mode == 1
+        out = program[index1] if mode1 == 0 else index1
+        print("Output: ", out)
+        # Increase pointer by 2, since this instruction has only one parameter
+        pointer += 2
