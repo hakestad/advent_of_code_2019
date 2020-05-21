@@ -9,7 +9,7 @@ with open("day1_puzzle.txt") as puzzle:
         # double int to convert the string moduleMass to number
         totalFuel += int(int(moduleMass)/3) - 2
 
-print("Total fuel:", totalFuel)
+print "Total fuel:", totalFuel
 
 
 #
@@ -33,4 +33,4 @@ with open("day1_puzzle.txt") as puzzle:
 
 
 
-print("Total fuel updated:", totalFuel)
+print "Total fuel updated:", totalFuel

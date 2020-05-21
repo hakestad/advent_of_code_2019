@@ -24,7 +24,7 @@ for i, val in enumerate(program):
             # For code 1, you should multiply instead
             program[index3] = program[index1] * program[index2]
 
-print("Value at position 0:", program[0])
+print "Value at position 0:", program[0]
 
 
 #
@@ -48,9 +48,9 @@ for noun in range(0,100):
                 # try to access array indices that are out of bounds
                 if (val == 99):
                     if (programCopy[0] == 19690720):
-                        print("noun: ", noun)
-                        print("verb: ", verb)
-                        print("Answer: ", 100 * noun + verb)
+                        print "noun: ", noun
+                        print "verb: ", verb
+                        print "Answer: ", 100 * noun + verb
                     break
 
                 index1 = programCopy[i + 1]

@@ -30,7 +30,7 @@ while currentValue < puzzleMax:
 
     currentValue += 1
 
-print("Length of matches: ", len(matches))
+print "Length of matches: ", len(matches)
 
 #
 #   Part 2 - could probably be optimalized
@@ -91,4 +91,4 @@ while currentValue < puzzleMax:
 
     currentValue += 1
 
-print("Length of matches, second part: ", len(matches))
+print "Length of matches, second part: ", len(matches)
