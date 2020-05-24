@@ -1,125 +1,108 @@
 #
-#   Reusing part of code from day 5
+#   Starting afresh, because the code from day 2 and 5 was kinda bad
+#   Going for a better structure here, using an object oriented approach
 #
 
-# @program  - List. Program to run
-# @outputList - List. Stores the outputs from the program
-# @inputType - String. defaults to user input, but can be set to "program" which
-#   means it will read from a list provided as either the phase or the outputList
-#   depending on an internal state
-# @phase - Int. used by day7. Will be the phase for one run of the program
-def intcode(program, outputList, inputType = "user", phase = 0):
-    opCode = 0
-    pointer = 0
-    # internal state that decided whether to use phase as "input" or last item in outputList as "input"
-    useInputPhase = True
-    while opCode != 99:
-        codes = [int(i) for i in str(program[pointer])]
-        numCodes = len(codes)
+class Intcode:
+    def __init__(self, program, phase, pointer):
+        self.phase = phase
+        self.pointer = pointer
+        self.program = program
+        self.code = 0
+        # For the first input, we use the value of the phase
+        # else we take the inputValue supplied in the run function
+        # This Boolean keeps track of the input state
+        self.initialInput = True
 
-        # The opCode is the two rightmost digits of the instruction, or the last digit for instructions
-        # that are lacking modes and are only single digit - handle this with ternary construct
-        # Need to combine them to a string to put them together, then re-convert back to int
-        opCode = int(`codes[numCodes - 2]` + `codes[numCodes - 1]`) if numCodes >= 2 else codes[0]
+    def getCode(self):
+        return self.code
 
-        if opCode == 99:
-            break
-
+    def getModes(self, codes, numCodes):
         # Defaults are mode 0 - position mode, else read mode from
         # third last, fourth last or fifth last code if they exist
         mode1 = codes[numCodes - 3] if numCodes >= 3 else 0
         mode2 = codes[numCodes - 4] if numCodes >= 4 else 0
         mode3 = codes[numCodes - 5] if numCodes >= 5 else 0
+        return mode1, mode2, mode3
+
+    def getIndices(self, code):
+        program = self.program
+        pointer = self.pointer
 
         index1 = program[pointer + 1]
-        # Only setup indices for these if there are appropriate number of params for this opCode
-        index2 = program[pointer + 2] if opCode == 1 or opCode == 2 or opCode == 5 or opCode == 6 or opCode == 7 or opCode == 8 else None
-        index3 = program[pointer + 3] if opCode == 1 or opCode == 2 or opCode == 7 or opCode == 8 else None
+        # Only setup indices for these if there are appropriate number of params for this code
+        index2 = program[pointer + 2] if code == 1 or code == 2 or code == 5 or code == 6 or code == 7 or code == 8 else None
+        index3 = program[pointer + 3] if code == 1 or code == 2 or code == 7 or code == 8 else None
+        return index1, index2, index3
 
-        if opCode == 1:
-            # Depending on the mode, you should either add the values at
-            # the indexed positions (mode == 0) together, or add the
-            # direct values (indices) together (mode == 1)
-            a1 = program[index1] if mode1 == 0 else index1
-            a2 = program[index2] if mode2 == 0 else index2
-            program[index3] = a1 + a2
-            # Increase pointer by 4, since this instruction uses three parameters
-            pointer += 4
-        elif opCode == 2:
-            # For code 2, you should multiply instead
-            m1 = program[index1] if mode1 == 0 else index1
-            m2 = program[index2] if mode2 == 0 else index2
-            program[index3] = m1 * m2
-            # Increase pointer by 4, since this instruction uses three parameters
-            pointer += 4
-        elif opCode == 3:
-            val = 0
+    def run(self, inputValue):
 
-            if inputType == 'user':
-                # Take single input value and store that value at the position given by parameter
-                try:
-                    val = int(input("Input: "))
-                except ValueError:
-                    print "Not a number."
-            else:
-                if useInputPhase == True:
-                    val = phase
-                    # Set to false so that it uses last item in outputList next time
-                    useInputPhase = False
+        while self.code != 99:
+            codes = [int(i) for i in str(self.program[self.pointer])]
+            numCodes = len(codes)
+
+            # The code is the two rightmost digits of the instruction, or the last digit for instructions
+            # that are lacking modes and are only single digit - handle this with ternary construct
+            # Need to combine them to a string to put them together, then re-convert back to int
+            code = int(`codes[numCodes - 2]` + `codes[numCodes - 1]`) if numCodes >= 2 else codes[0]
+            self.code = code
+
+            if code == 99:
+                break
+
+            mode1, mode2, mode3 = self.getModes(codes, numCodes)
+            index1, index2, index3 = self.getIndices(code)
+
+            if code == 1:
+                # Depending on the mode, you should either add the values at
+                # the indexed positions (mode == 0) together, or add the
+                # direct values (indices) together (mode == 1)
+                a1 = self.program[index1] if mode1 == 0 else index1
+                a2 = self.program[index2] if mode2 == 0 else index2
+
+                self.program[index3] = a1 + a2
+                # Increase pointer by 4, since this instruction uses three parameters
+                self.pointer += 4
+            elif code == 2:
+                # For code 2, you should multiply instead
+                m1 = self.program[index1] if mode1 == 0 else index1
+                m2 = self.program[index2] if mode2 == 0 else index2
+                self.program[index3] = m1 * m2
+                # Increase pointer by 4, since this instruction uses three parameters
+                self.pointer += 4
+
+            elif code == 3:
+                self.program[index1] = self.phase if self.initialInput == True else inputValue
+                self.initialInput = False
+                # Increase pointer by 2, since this instruction has only one parameter
+                self.pointer += 2
+
+            elif code == 4:
+                # Output value at the position given by the first parameter, or the index value if mode == 1
+                output = self.program[index1] if mode1 == 0 else index1
+                # Increase pointer by 2, since this instruction has only one parameter
+                self.pointer += 2
+                return output
+
+            elif code == 5:
+                firstParam = self.program[index1] if mode1 == 0 else index1
+                if (firstParam != 0):
+                    self.pointer = self.program[index2] if mode2 == 0 else index2
                 else:
-                    # If not, it means the last value of the outputList should be used
-                    val = outputList[len(outputList) - 1]
-                    # Set to true so that it uses phase next time
-                    useInputPhase = True
-
-            program[index1] = val
-            # Increase pointer by 2, since this instruction has only one parameter
-            pointer += 2
-        elif opCode == 4:
-            # Output value at the position given by the first parameter, or the index value if mode == 1
-            out = program[index1] if mode1 == 0 else index1
-            outputList.append(out)
-            print "Output: ", out
-
-            # Increase pointer by 2, since this instruction has only one parameter
-            pointer += 2
-        elif opCode == 5:
-            firstParam = program[index1] if mode1 == 0 else index1
-            if (firstParam != 0):
-                pointer = program[index2] if mode2 == 0 else index2
-            else:
-                pointer += 3
-        elif opCode == 6:
-            firstParam = program[index1] if mode1 == 0 else index1
-            if (firstParam == 0):
-                pointer = program[index2] if mode2 == 0 else index2
-            else:
-                pointer += 3
-        elif opCode == 7:
-            firstParam = program[index1] if mode1 == 0 else index1
-            secondParam = program[index2] if mode2 == 0 else index2
-            program[index3] = 1 if firstParam < secondParam else 0
-            pointer += 4
-        elif opCode == 8:
-            firstParam = program[index1] if mode1 == 0 else index1
-            secondParam = program[index2] if mode2 == 0 else index2
-            program[index3] = 1 if firstParam == secondParam else 0
-            pointer += 4
-    return(outputList)
-
-
-def amplifierOutputChecker(program, phaseSequences, outputList):
-    for seq in phaseSequences:
-        print "sequence: ", seq
-        # For each sequence, we reset the temporary list of outputs
-        tempOutputList = [0]
-        # and we reset the program so that each sequence combination will
-        # start alike
-        testProgram = program
-        for phase in seq:
-            print "phase", phase
-            tempOutputList = intcode(testProgram, tempOutputList, "program", phase)
-        # Save the last output to store to be able to compare
-        # which sequence yielded the highest output
-        outputList.append(tempOutputList[len(tempOutputList) - 1])
-    return outputList
+                    self.pointer += 3
+            elif code == 6:
+                firstParam = self.program[index1] if mode1 == 0 else index1
+                if (firstParam == 0):
+                    self.pointer = self.program[index2] if mode2 == 0 else index2
+                else:
+                    self.pointer += 3
+            elif code == 7:
+                firstParam = self.program[index1] if mode1 == 0 else index1
+                secondParam = self.program[index2] if mode2 == 0 else index2
+                self.program[index3] = 1 if firstParam < secondParam else 0
+                self.pointer += 4
+            elif code == 8:
+                firstParam = self.program[index1] if mode1 == 0 else index1
+                secondParam = self.program[index2] if mode2 == 0 else index2
+                self.program[index3] = 1 if firstParam == secondParam else 0
+                self.pointer += 4
