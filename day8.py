@@ -1,4 +1,6 @@
 import math
+from PIL import Image
+import numpy as np
 #
 #   Part 1
 #
@@ -31,5 +33,48 @@ for i, layer in enumerate(layers):
         counter["ones"] = layer.count('1')
         counter["twos"] = layer.count('2')
 
-print counter
-print "Answer: ", counter["ones"] * counter["twos"]
+print ("Answer, part 1: ", counter["ones"] * counter["twos"])
+
+#
+#   Part 2
+#
+pixels = [[], [], [], [], [], []]
+for l, layer in enumerate(layers):
+    for h in range(0, height):
+        for w in range (0, width):
+            # Layer is not split into row and column, it's just one line
+            candidatePixel = layer[((h+1)*width) - (width - w)]
+            # If this is the first layer we're inspecting
+            if l == 0:
+                pixels[h].append(candidatePixel)
+            else:
+                currentPixel = pixels[h][w]
+                # If currentPixel is transparent, we'll use the pixel in the
+                # layer underneath instead
+                if currentPixel == '2':
+                    pixels[h][w] = candidatePixel
+
+#
+# For fun, turn it into an actual image
+#
+# First setting up color codes for the pixels
+colorPixels = [[], [], [], [], [], []]
+for i, row in enumerate(pixels):
+    for j, pixel in enumerate(row):
+        colorPixel = (0,0,0) if pixel == '0' else (255,255,255)
+        colorPixels[i].append(colorPixel)
+
+
+# Convert the pixels into an array using numpy
+array = np.array(colorPixels, dtype=np.uint8)
+
+# Use PIL to create an image from the new array of pixels
+image = Image.fromarray(array)
+image.save('day8_part2.png')
+
+#
+#   But also output to terminal
+#
+for row in pixels:
+    row = [" " if x == '0' else "#" for x in row]
+    print(" ".join(row))
