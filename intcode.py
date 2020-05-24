@@ -1,6 +1,7 @@
 #
 #   Starting afresh, because the code from day 2 and 5 was kinda bad
 #   Going for a better structure here, using an object oriented approach
+#   for easier control of each Intcode object's state
 #
 
 class Intcode:
