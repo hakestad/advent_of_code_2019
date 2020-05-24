@@ -64,7 +64,7 @@ def intcode(program, output, inputType = "user", phase = 0):
                 try:
                     val = int(input("Input: "))
                 except ValueError:
-                    print "Not a number."
+                    print("Not a number.")
             else:
                 if useInputPhase == True:
                     val = phase
@@ -73,7 +73,6 @@ def intcode(program, output, inputType = "user", phase = 0):
                 else:
                     # If not, it means the last output passed in should be used
                     val = output
-                    #print "VAL: ", val
 
             program[index1] = val
             # Increase pointer by 2, since this instruction has only one parameter
@@ -81,7 +80,6 @@ def intcode(program, output, inputType = "user", phase = 0):
         elif opCode == 4:
             # Output value at the position given by the first parameter, or the index value if mode == 1
             output = program[index1] if mode1 == 0 else index1
-            #print "Output: ", output
 
             # Increase pointer by 2, since this instruction has only one parameter
             pointer += 2
@@ -113,16 +111,13 @@ def intcode(program, output, inputType = "user", phase = 0):
 def amplifierOutputChecker(program, phaseSequences, outputList):
 
     for seq in phaseSequences:
-        print "sequence: ", seq
         # For each sequence, we reset the temporary list of outputs
         output = 0
         for phase in seq:
             # Each amplifier will have its own program
             testProgram = program[:]
-            print "phase", phase
             output = intcode(testProgram, output, "program", phase)
         # Save the last output to store to be able to compare
         # which sequence yielded the highest output
         outputList.append(output)
-    print outputList
     return outputList

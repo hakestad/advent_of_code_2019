@@ -40,9 +40,9 @@ for seq in phaseSequences:
 highestOutput = max(outputList)
 highestOutputIndex = outputList.index(highestOutput)
 
-print "----------------------------------------------------------------------"
-print "Highest output for part 1 was: ", highestOutput, " and the sequence was: ", phaseSequences[highestOutputIndex]
-print "----------------------------------------------------------------------"
+print("----------------------------------------------------------------------")
+print("Highest output for part 1 was: ", highestOutput, " and the sequence was: ", phaseSequences[highestOutputIndex])
+print("----------------------------------------------------------------------")
 
 #
 #   Part 2
@@ -67,5 +67,5 @@ for seq in phaseSequences:
         output = amps[4].run(amps[3].run(amps[2].run(amps[1].run(amps[0].run(output)))))
         outputList.append(output)
 
-print "Highest output for part 2 was: ", max(outputList)
-print "----------------------------------------------------------------------"
+print("Highest output for part 2 was: ", max(outputList))
+print("----------------------------------------------------------------------")

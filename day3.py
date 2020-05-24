@@ -89,6 +89,6 @@ for val in intersects:
 distances.sort()
 sumSteps.sort()
 # Print smallest manhattan distance
-print "Manhattan distance: ", distances[0] # <---- solution to first part
+print("Manhattan distance: ", distances[0]) # <---- solution to first part
 # Print smallest sum of steps
-print "Smallest sum of steps: ", sumSteps[0] # <----- solution to second part
+print("Smallest sum of steps: ", sumSteps[0]) # <----- solution to second part

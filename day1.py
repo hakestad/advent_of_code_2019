@@ -33,4 +33,4 @@ with open("day1_puzzle.txt") as puzzle:
 
 
 
-print "Total fuel updated:", totalFuel
+print("Total fuel updated:", totalFuel)

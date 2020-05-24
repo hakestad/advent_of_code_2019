@@ -22,8 +22,6 @@ with open("day6_puzzle.txt") as puzzle:
         orbitee = line[0]
         # while the one that orbits is the one on the right of the )
         orbiter = line[1]
-        #print 'orbitee: ', orbitee
-        #print 'orbiter: ', orbiter
         orbits[orbiter] = orbitee
 
 # add up the number that each item in the dictionary is orbiting another object
@@ -32,7 +30,7 @@ numOrbits = 0
 for key in orbits:
     numOrbits += countOrbits(key, orbits, 1)
 
-print "Number of direct and indirect orbits: ", numOrbits
+print("Number of direct and indirect orbits: ", numOrbits)
 
 #
 #   Part 2
@@ -69,4 +67,4 @@ firstIntersect = intersections[0]
 count1 = countOrbitsFromTo("SAN", firstIntersect, orbits, 1)
 count2 = countOrbitsFromTo("YOU", firstIntersect, orbits, 1)
 
-print "Number of orbital transfers: ", count1 + count2
+print("Number of orbital transfers: ", count1 + count2)

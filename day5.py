@@ -50,7 +50,7 @@ while opCode != 99:
         try:
             val = int(input("Input: "))
         except ValueError:
-            print "Not a number."
+            print("Not a number.")
 
         program[index1] = val
         # Increase pointer by 2, since this instruction has only one parameter
@@ -58,7 +58,7 @@ while opCode != 99:
     elif opCode == 4:
         # Output value at the position given by the first parameter, or the index value if mode == 1
         out = program[index1] if mode1 == 0 else index1
-        print "Output: ", out
+        print("Output: ", out)
         # Increase pointer by 2, since this instruction has only one parameter
         pointer += 2
     elif opCode == 5:
