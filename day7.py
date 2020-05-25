@@ -67,5 +67,8 @@ for seq in phaseSequences:
         output = amps[4].run(amps[3].run(amps[2].run(amps[1].run(amps[0].run(output)))))
         outputList.append(output)
 
+
+# Need to remove the None value in the list
+outputList = [x for x in outputList if x is not None]
 print("Highest output for part 2 was: ", max(outputList))
 print("----------------------------------------------------------------------")
