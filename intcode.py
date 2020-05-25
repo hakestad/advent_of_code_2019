@@ -5,12 +5,16 @@
 #
 
 class Intcode:
-    def __init__(self, program, phase, pointer):
+    # @testMode lets user input value from keyboard during testing
+    def __init__(self, program, phase, pointer, testMode = False):
         self.phase = phase
         self.pointer = pointer
         self.program = program
+        # extend program with much larger memory
+        self.program.extend([0]*1000)
         self.code = 0
         self.relativeBase = 0
+        self.testMode = testMode
         # For the first input, we use the value of the phase
         # else we take the inputValue supplied in the run function
         # This Boolean keeps track of the input state
@@ -48,8 +52,11 @@ class Intcode:
         elif mode == 2:
             return self.program[self.relativeBase + index]
 
-    def run(self, inputValue):
+    def getWriteAddress(self, mode, index):
+        return self.relativeBase + index if mode == 2 else index
 
+    def run(self, inputValue):
+        # This loop will stop also if output is reached
         while self.code != 99:
             codes = [int(i) for i in str(self.program[self.pointer])]
             numCodes = len(codes)
@@ -71,12 +78,20 @@ class Intcode:
 
             if code == 1 or code == 2:
                 # Code 1 adds values, code 2 multiplies values
-                self.program[index3] = value1 + value2 if code == 1 else value1 * value2
+                self.program[self.getWriteAddress(mode3, index3)] = value1 + value2 if code == 1 else value1 * value2
                 # Increase pointer by 4, since this instruction uses three parameters
                 self.pointer += 4
 
             elif code == 3:
-                self.program[index1] = self.phase if self.initialInput == True else inputValue
+                if self.testMode == True:
+                    try:
+                        inputValue = int(input("Input: "))
+                    except ValueError:
+                        print("Not a number.")
+                else:
+                    inputValue = self.phase if self.initialInput == True else inputValue
+
+                self.program[self.getWriteAddress(mode1, index1)] = inputValue
                 self.initialInput = False
                 # Increase pointer by 2, since this instruction has only one parameter
                 self.pointer += 2
@@ -98,10 +113,11 @@ class Intcode:
                 else:
                     self.pointer += 3
             elif code == 7:
-                self.program[index3] = 1 if value1 < value2 else 0
+                self.program[self.getWriteAddress(mode3, index3)] = 1 if value1 < value2 else 0
                 self.pointer += 4
             elif code == 8:
-                self.program[index3] = 1 if value1 == value2 else 0
+                self.program[self.getWriteAddress(mode3, index3)] = 1 if value1 == value2 else 0
                 self.pointer += 4
             elif code == 9:
                 self.relativeBase += value1
+                self.pointer += 2
